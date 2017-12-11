@@ -31,14 +31,11 @@ import data_utils
 class Seq2SeqModel(object):
   """Sequence-to-sequence model with attention and for multiple buckets.
 
-  This class implements a multi-layer recurrent neural network as encoder,
-  and an attention-based decoder. This is the same as the model described in
-  this paper: http://arxiv.org/abs/1412.7449 - please look there for details,
-  or into the seq2seq library for complete model implementation.
-  This class also allows to use GRU cells in addition to LSTM cells, and
-  sampled softmax to handle large output vocabulary size. A single-layer
-  version of this model, but with bi-directional encoder, was presented in
-    http://arxiv.org/abs/1409.0473
+  This class implements a multi-layer recurrent neural network as encoder, and an attention-based decoder. 
+  This is the same as the model described in this paper: http://arxiv.org/abs/1412.7449 
+  - please look there for details, or into the seq2seq library for complete model implementation.
+  This class also allows to use GRU cells in addition to LSTM cells, and sampled softmax to handle large output vocabulary size. 
+  A single-layer version of this model, but with bi-directional encoder, was presented in http://arxiv.org/abs/1409.0473
   and sampled softmax is described in Section 3 of the following paper.
     http://arxiv.org/abs/1412.2007
   """
@@ -62,10 +59,11 @@ class Seq2SeqModel(object):
     Args:
       source_vocab_size: size of the source vocabulary.
       target_vocab_size: size of the target vocabulary.
-      buckets: a list of pairs (I, O), where I specifies maximum input length
-        that will be processed in that bucket, and O specifies maximum output
-        length. Training instances that have inputs longer than I or outputs
-        longer than O will be pushed to the next bucket and padded accordingly.
+      buckets: a list of pairs (I, O), 
+        where I specifies maximum input length that will be processed in that bucket, 
+        and O specifies maximum output length. 
+        Training instances that have inputs longer than I or outputs longer than O 
+        will be pushed to the next bucket and padded accordingly.
         We assume that the list is sorted, e.g., [(2, 4), (8, 16)].
       size: number of units in each layer of the model.
       num_layers: number of layers in the model.
@@ -84,10 +82,8 @@ class Seq2SeqModel(object):
     self.target_vocab_size = target_vocab_size
     self.buckets = buckets
     self.batch_size = batch_size
-    self.learning_rate = tf.Variable(
-        float(learning_rate), trainable=False, dtype=dtype)
-    self.learning_rate_decay_op = self.learning_rate.assign(
-        self.learning_rate * learning_rate_decay_factor)
+    self.learning_rate = tf.Variable(float(learning_rate), trainable=False, dtype=dtype)
+    self.learning_rate_decay_op = self.learning_rate.assign(self.learning_rate * learning_rate_decay_factor)
     self.global_step = tf.Variable(0, trainable=False)
 
     # If we use sampled softmax, we need an output projection.
@@ -186,16 +182,13 @@ class Seq2SeqModel(object):
       opt = tf.train.GradientDescentOptimizer(self.learning_rate)
       for b in xrange(len(buckets)):
         gradients = tf.gradients(self.losses[b], params)
-        clipped_gradients, norm = tf.clip_by_global_norm(gradients,
-                                                         max_gradient_norm)
+        clipped_gradients, norm = tf.clip_by_global_norm(gradients, max_gradient_norm)
         self.gradient_norms.append(norm)
-        self.updates.append(opt.apply_gradients(
-            zip(clipped_gradients, params), global_step=self.global_step))
+        self.updates.append(opt.apply_gradients(zip(clipped_gradients, params), global_step=self.global_step))
 
     self.saver = tf.train.Saver(tf.global_variables())
 
-  def step(self, session, encoder_inputs, decoder_inputs, target_weights,
-           bucket_id, forward_only):
+  def step(self, session, encoder_inputs, decoder_inputs, target_weights, bucket_id, forward_only):
     """Run a step of the model feeding the given inputs.
 
     Args:
@@ -207,8 +200,7 @@ class Seq2SeqModel(object):
       forward_only: whether to do the backward step or only forward.
 
     Returns:
-      A triple consisting of gradient norm (or None if we did not do backward),
-      average perplexity, and the outputs.
+      A triple consisting of gradient norm (or None if we did not do backward), average perplexity, and the outputs.
 
     Raises:
       ValueError: if length of encoder_inputs, decoder_inputs, or
